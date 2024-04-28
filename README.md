@@ -17,7 +17,9 @@ The authors of this paper model an image as a sequence of patches by breaking it
 
 In this repository, I emulate the paper and build the architecture from scratch. Here is a run down of the different modules in the architecture and how they tie into the different modules in this repository
 
-![Insert Image here]()
+![](./static/Encoder.jpg)
+
+The above figure illustrates a overview of the architecture. The individual layers used are described below as follows
 
 ### linearProjection
 Here we break the image into S x S patches and project them into a `d_model` dimensional space. To perform this operation optimally, I have used convolutional layer with stride = S, kernel_size = S. This ensures that the convolution operation acts as an MLP in each of the patches.

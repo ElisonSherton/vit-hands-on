@@ -9,7 +9,6 @@ class linearProjection(nn.Module):
 
     def __init__(self, patch_size: int, d_model: int, num_channels: int):
         """Initial Projection of the image into tokens by breaking into patches
-
         Args:
             patch_size (int): Size of patch to use break the image into grids
             d_model (int): Embedding dimension of the entire model
@@ -23,7 +22,7 @@ class linearProjection(nn.Module):
             stride=patch_size,
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # BCHW -> B x d_model x H/patch_size x W/patch_size where B = Batch size
         out = self.projector(x)
         N, d_model, *_ = out.shape
@@ -51,7 +50,7 @@ class attentionBlock(nn.Module):
         self.d_model = d_model
         self.drop = nn.Dropout(p=attn_drop)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Here N = num_tokens
         # Input -> N x d_model
 
@@ -83,7 +82,7 @@ class multiHeadAttentionBlock(nn.Module):
         )
         self.intrahead_mlp = nn.Linear(d_model, d_model)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # Apply all attention heads on input
         attention_outs = [block(x) for block in self.attention_blocks]
 
@@ -102,7 +101,7 @@ class encoderBlock(nn.Module):
         attn_drop: float = 0.3,
         mlp_drop: float = 0.3,
     ):
-        """Single Encoder Unit of the transformet
+        """Single Encoder Unit of the transformer
 
         Args:
             num_heads (int): How many heads in the multihead attention
@@ -123,7 +122,7 @@ class encoderBlock(nn.Module):
             nn.Linear(expansion_ratio * d_model, d_model)
         )
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         # x - N * d_model
 
         # First step of finding attentions
@@ -221,7 +220,7 @@ class vit(nn.Module):
             )
         self.classifier = nn.Sequential(*classifier_layers)
 
-    def forward(self, x):
+    def forward(self, x: torch.Tensor) -> torch.Tensor:
         if self.debug:
             print(f"Input Shape: {x.shape}")
         # Get the patch embeddings for stem
@@ -238,7 +237,10 @@ class vit(nn.Module):
                 print(f"Patches with CLS Token shape: {patches.shape}")
 
         # Add position embeddings to the input only at the beginning
+
         positions = torch.arange(0, patches.shape[1])
+        device = torch.device("cuda") if torch.cuda.is_available() else torch.device("cpu")
+        positions = positions.to(device)
         patches = patches + self.position_embedding(positions)
         x = patches
         x = self.blocks(x)

@@ -21,19 +21,19 @@ In this repository, I emulate the paper and build the architecture from scratch.
 
 The above figure illustrates a overview of the architecture. The individual layers used are described below as follows
 
-### linearProjection
+### [linearProjection](https://github.com/ElisonSherton/vit-hands-on/blob/main/src/model.py#L8)
 Here we break the image into S x S patches and project them into a `d_model` dimensional space. To perform this operation optimally, I have used convolutional layer with stride = S, kernel_size = S. This ensures that the convolution operation acts as an MLP in each of the patches.
 
-## attentionBlock
+## [attentionBlock](https://github.com/ElisonSherton/vit-hands-on/blob/main/src/model.py#L36)
 In this piece, I have implemented the basic attention block. Here we transform the incoming tokens each of `d_model` dimension space into `d_model // num_heads` space and compute the scaled dot product Attention inspired from the Attention is all you need paper. Since we use multi-head attention hence each head is transformed into a smaller dimensional space and eventually all the heads are concatenated to bring the representation back into the `d_model` space.
 
-## multiHeadAttentionBlock
+## [multiHeadAttentionBlock](https://github.com/ElisonSherton/vit-hands-on/blob/main/src/model.py#L70)
 Here we use the attentionBlock from above and stack several of them together (precisely num_heads heads) and each head's attention is independent of the other. The intuition here is that each head is going to learn a different aspect of the ways in which the tokens relate or attend to each other similar to feature maps in CNNs. 
 
-## encoderBlock
+## [encoderBlock](https://github.com/ElisonSherton/vit-hands-on/blob/main/src/model.py#L94)
 This is the core of the entire vision transformer. This block contains a Layernorm followed by a multiHeadAttentionBlock followed by another layernorm and a residual connection which is again normed and passed through an MLP with a residual connection from the output of multiheadAttentionBlock. Several of these blocks are stacked on top of one another to get the final model.
 
-## vit
+## [vit](https://github.com/ElisonSherton/vit-hands-on/blob/main/src/model.py#L135)
 In Vision Transformer i.e. vit, there are two ways in which the output of the final layer can be used for classification
 a. just like in BERT, use a CLS token which is a special token at the beginning of the sequence which is fed into an MLP to get the final dimensionalities as number of classes and softmax with cross entropy loss is applied on top of it.
 b. Or use Global Average Pooling across all the tokens in the final encoder output and feed that to a classifier MLP
